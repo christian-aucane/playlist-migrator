@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+
+
+    <main>
+        <h1>Bienvenue sur mon application</h1>
+        {% if user.is_authenticated %}
+            <p>Bonjour, {{ user.username }} !</p>
+            <p>Vous êtes connecté avec succès.</p>
+        {% else %}
+            <p>Veuillez vous connecter pour accéder à toutes les fonctionnalités.</p>
+        {% endif %}
+    </main>
+
+
+{% endblock %}

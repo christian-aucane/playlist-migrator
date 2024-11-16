@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mon Application{% endblock %}</title
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}">Accueil</a></li>
+            {% if user.is_authenticated %}
+            <li>
+                <form method="POST" action="{% url 'authenticate:logout' %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Se déconnecter">
+                </form>
+            </li>
+            {% else %}
+                <li><a href="{% url 'authenticate:login' %}">Se connecter</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+        {% block content %} {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Mon Application - Tous droits réservés</p>
+    </footer>
+
+</body>
+</html>
