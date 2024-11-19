@@ -75,6 +75,7 @@ INSTALLED_APPS = [
 
     "authenticate",
     "core",
+    "platforms",
 
 ]
 
@@ -151,6 +152,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = 'authenticate.CustomUser'
+
+
+# =============================================================================
+# OAuth
+# =============================================================================
+PLATFORMS_CLIENTS = {
+    "youtube":{
+        "client_class": "platforms.clients.youtube.YoutubeClient",
+        "client_kwargs": {
+            "client_secrets_file": BASE_DIR.parent /"client_secrets.json",
+            "scopes": ["https://www.googleapis.com/auth/youtube.readonly"],
+        }
+    }
+}
 
 
 if MODE == "DEV":

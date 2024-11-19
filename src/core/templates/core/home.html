@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load platforms_filters %}  <!-- Charger le filtre personnalisé -->
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
@@ -10,6 +10,16 @@
         {% if user.is_authenticated %}
             <p>Bonjour, {{ user.username }} !</p>
             <p>Vous êtes connecté avec succès.</p>
+        <ul>
+            <li>
+                {% if user|is_connected_to_platform:"youtube" %}
+                    <p>Connecté à YouTube</p>
+                    <p><a href="{% url 'platforms:disconnect' platform='youtube' %}">Déconnecter</a></p>
+                {% else %}
+                    <a href="{% url 'platforms:auth_redirect' platform='youtube' %}">Se connecter à Youtube</a>
+                {% endif %}
+            </li>
+        </ul>
         {% else %}
             <p>Veuillez vous connecter pour accéder à toutes les fonctionnalités.</p>
         {% endif %}
