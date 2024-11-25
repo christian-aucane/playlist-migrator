@@ -2,7 +2,7 @@ from django.utils import timezone
 
 from spotipy import SpotifyOAuth
 
-from .base import BaseClient
+from platforms.utils.base.client import BaseClient
 
 
 class SpotifyClient(BaseClient):

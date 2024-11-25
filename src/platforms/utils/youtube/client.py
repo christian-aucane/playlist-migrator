@@ -2,7 +2,7 @@ from django.utils import timezone
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from .base import BaseClient
+from platforms.utils.base.client import BaseClient
 
 
 class YoutubeClient(BaseClient):
