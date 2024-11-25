@@ -158,11 +158,19 @@ AUTH_USER_MODEL = 'authenticate.CustomUser'
 # OAuth
 # =============================================================================
 PLATFORMS_CLIENTS = {
-    "youtube":{
+    "youtube": {
         "client_class": "platforms.clients.youtube.YoutubeClient",
         "client_kwargs": {
             "client_secrets_file": BASE_DIR.parent /"client_secrets.json",
             "scopes": ["https://www.googleapis.com/auth/youtube.readonly"],
+        }
+    },
+    "spotify": {
+        "client_class": "platforms.clients.spotify.SpotifyClient",
+        "client_kwargs": {
+            "client_id": env("SPOTIFY_CLIENT_ID"),
+            "client_secret": env("SPOTIFY_CLIENT_SECRET"),
+            "scopes": "user-library-read playlist-read-private",
         }
     }
 }
