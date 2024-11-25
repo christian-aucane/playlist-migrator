@@ -12,12 +12,16 @@
         <ul>
             <li><a href="{% url 'home' %}">Accueil</a></li>
             {% if user.is_authenticated %}
-            <li>
-                <form method="POST" action="{% url 'authenticate:logout' %}">
-                    {% csrf_token %}
-                    <input type="submit" value="Se déconnecter">
-                </form>
-            </li>
+                <li>
+                    <form method="POST" action="{% url 'authenticate:logout' %}">
+                        {% csrf_token %}
+                        <input type="submit" value="Se déconnecter">
+                    </form>
+                </li>
+                {% if user.is_superuser %}
+                    <li><a href="{% url 'admin:index' %}">Administration</a></li>
+                {% endif %}
+
             {% else %}
                 <li><a href="{% url 'authenticate:login' %}">Se connecter</a></li>
             {% endif %}
