@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils.timezone import now
 from django.views import View
 from django.contrib.sites.shortcuts import get_current_site
 
@@ -70,7 +69,7 @@ class OAuthCallbackView(BasePlatformView):
             }
         )
 
-        return JsonResponse(token_data)
+        return HttpResponseRedirect(reverse("home"))
 
 
 class DisconnectPlatformView(LoginRequiredMixin, View):
