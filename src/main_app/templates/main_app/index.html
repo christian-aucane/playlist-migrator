@@ -1,0 +1,22 @@
+{% extends 'main_app/base.html' %}
+{% load platforms_filters %}
+
+{% block app %}
+    <main>
+        <h1>Bienvenue</h1>
+
+        <p>Cette application est la base de l'application de playlist.</p>
+
+        <h2>Spotify</h2>
+
+        {% if user|is_connected_to_platform:"spotify" %}
+            <p>
+                <a href="{% url 'main_app:update_saved_tracks' platform='spotify' %}">Voir mes musiques</a>
+                <a href="{% url 'platforms:disconnect' platform='spotify' %}">Déconnecter</a>
+            </p>
+        {% else %}
+            <p><a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a></p>
+        {% endif %}
+    </main>
+
+{% endblock app %}

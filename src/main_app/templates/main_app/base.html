@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% load platforms_filters %}
+
+{% block title %}Application{% endblock %}
+
+{% block content %}
+
+<h1>Mon application</h1>
+<nav>
+    <ul>
+        <li>
+            <a href="{% url 'main_app:index' %}">Accueil de l'application</a>
+        </li>
+    </ul>
+    <ul>
+    <!-- TODO : mettre dans un template partiel -->
+        <li>
+            {% if user|is_connected_to_platform:"spotify" %}
+                <a href="{% url 'platforms:disconnect' platform='spotify' %}">Déconnecter Spotify</a>
+            {% else %}
+                <a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a>
+            {% endif %}
+        </li>
+        {% comment %}
+        <li>
+            {% if user|is_connected_to_platform:"youtube" %}
+                <a href="{% url 'platforms:disconnect' platform='youtube' %}">Déconnecter Youtube</a>
+            {% else %}
+                <a href="{% url 'platforms:auth_redirect' platform='youtube' %}">Se connecter à Youtube</a>
+            {% endif %}
+        </li>
+        {% endcomment %}
+    </ul>
+</nav>
+{% block app %}
+{% endblock app %}
+{% endblock content %}

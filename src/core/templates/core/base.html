@@ -13,6 +13,8 @@
             <li><a href="{% url 'home' %}">Accueil</a></li>
             {% if user.is_authenticated %}
                 <li>
+                    Bonjour, {{ user.username }}
+
                     <form method="POST" action="{% url 'authenticate:logout' %}">
                         {% csrf_token %}
                         <input type="submit" value="Se déconnecter">

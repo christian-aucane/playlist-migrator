@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import OAuthRedirectView, OAuthCallbackView, DisconnectPlatformView
 
+
 app_name = "platforms"
 
 urlpatterns = [

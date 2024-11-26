@@ -1,34 +1,17 @@
 {% extends 'core/base.html' %}
-{% load platforms_filters %}
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
 
 
     <main>
-        <h1>Bienvenue sur mon application</h1>
+        <h1>Bienvenue</h1>
+        <h2>Accès aux fonctionnalités</h2>
         {% if user.is_authenticated %}
-            <p>Bonjour, {{ user.username }} !</p>
-            <p>Vous êtes connecté avec succès.</p>
-            <h2>Plateformes</h2>
-            <ul>
-                <li>
-                    {% if user|is_connected_to_platform:"youtube" %}
-                        <a href="{% url 'platforms:disconnect' platform='youtube' %}">Déconnecter Youtube</a>
-                    {% else %}
-                        <a href="{% url 'platforms:auth_redirect' platform='youtube' %}">Se connecter à Youtube</a>
-                    {% endif %}
-                </li>
-                <li>
-                    {% if user|is_connected_to_platform:"spotify" %}
-                        <a href="{% url 'platforms:disconnect' platform='spotify' %}">Déconnecter Spotify</a>
-                    {% else %}
-                        <a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a>
-                    {% endif %}
-                </li>
-            </ul>
+            <!-- TODO : ajouter un lien vers la page de l'application -->
+            <a href="{% url 'main_app:index' %}">Acceder a l'application</a>
         {% else %}
-            <p>Veuillez vous connecter pour accéder à toutes les fonctionnalités.</p>
+            <p>Veuillez vous <a href="{% url 'authenticate:login' %}">connecter</a> pour accéder à toutes les fonctionnalités.</p>
         {% endif %}
     </main>
 

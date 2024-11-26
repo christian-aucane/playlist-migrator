@@ -59,6 +59,10 @@ EMAIL_BACKEND = env("EMAIL_BACKEND")
 MODE = env("MODE")
 
 
+DEFAULT_DOMAIN = env("DEFAULT_DOMAIN")
+
+DEFAULT_PROTOCOL = env("DEFAULT_PROTOCOL")
+
 # =============================================================================
 # DJANGO
 # =============================================================================
@@ -76,6 +80,7 @@ INSTALLED_APPS = [
     "authenticate",
     "core",
     "platforms",
+    "main_app",
 
 ]
 
@@ -154,6 +159,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authenticate.CustomUser'
 
 
+
 # =============================================================================
 # OAuth
 # =============================================================================
@@ -174,6 +180,8 @@ PLATFORMS_CLIENTS = {
         }
     }
 }
+
+AVAILABLE_PLATFORMS = list(PLATFORMS_CLIENTS.keys())
 
 
 if MODE == "DEV":

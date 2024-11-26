@@ -17,12 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from core.views import HomeView
+from core.views import HomeView, WorkInProgressView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", HomeView.as_view(), name="home"),
-    path("work_in_progress/", include("work_in_progress.urls"), name="work_in_progress"),
+    path("work_in_progress/", WorkInProgressView.as_view(), name="work_in_progress"),
     path("authenticate/", include("authenticate.urls")),
     path("platforms/", include("platforms.urls")),
+    path("app/", include("main_app.urls")),
 ]
