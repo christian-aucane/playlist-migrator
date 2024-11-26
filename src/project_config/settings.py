@@ -82,6 +82,8 @@ INSTALLED_APPS = [
     "platforms",
     "main_app",
 
+    "django_tables2"
+
 ]
 
 # Middleware
