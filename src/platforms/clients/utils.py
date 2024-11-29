@@ -22,7 +22,6 @@ def _get_redirect_uri(platform):
     domain = settings.DEFAULT_DOMAIN
     protocol = settings.DEFAULT_PROTOCOL
     # TODO : ajouter le protocole dynamiquement (http ou https)
-    print(f"{protocol}://{domain}{relative_url}")
     return f"{protocol}://{domain}{relative_url}"
 
 
