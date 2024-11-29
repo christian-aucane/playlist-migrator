@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -16,6 +17,12 @@ class Track(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.artist}"
+
+    def is_avaiable_on_platform(self, platform):
+        """
+        Check if the track is available on the given platform.
+        """
+        return TrackPlatformInfo.objects.filter(track=self, platform=platform).exists()
 
 
 class TrackPlatformInfo(models.Model):
@@ -96,4 +103,7 @@ class UserTrack(models.Model):
 
     def __str__(self):
         return f"{self.user}: {self.track} ({self.from_platform})"
+
+    def get_delete_url(self):
+        return reverse("main_app:delete_user_track", kwargs={"pk": self.pk})
 
