@@ -20,8 +20,9 @@ class UserTrackTable(tables.Table):
         format="d/m/Y"
     )
 
-    # TODO : ajouter des colonnes pour les plateformes
+    # TODO : ajouter des colonnes pour les plateformes dynamiquement avec settings.AVAILABLE_PLATFORMS
     spotify = tables.Column(verbose_name="Spotify", orderable=False, empty_values=())
+    youtube = tables.Column(verbose_name="Youtube", orderable=False, empty_values=())
 
     delete = tables.Column(verbose_name="Delete", orderable=False, empty_values=())
 
@@ -33,7 +34,11 @@ class UserTrackTable(tables.Table):
     def render_spotify(self, record):
         return self._render_platform_column(platform="spotify", record=record)
 
+    def render_youtube(self, record):
+        return self._render_platform_column(platform="youtube", record=record)
+
     def render_delete(self, record):
+        # TODO : inclure directement le formulaire de suppression
         return mark_safe(f"<a href='{record.get_delete_url()}'>Delete</a>")
 
     @staticmethod

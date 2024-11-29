@@ -19,6 +19,18 @@
                     <p><a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a></p>
                 {% endif %}
             </li>
+            <li>
+                Youtube
+
+                {% if user|is_connected_to_platform:"youtube" %}
+                    <p>
+                        <a href="{% url 'main_app:update_saved_tracks' platform='youtube' %}">Recharger la liste</a>
+                        <a href="{% url 'platforms:disconnect' platform='youtube' %}">Déconnecter</a>
+                    </p>
+                {% else %}
+                    <p><a href="{% url 'platforms:auth_redirect' platform='youtube' %}">Se connecter à Youtube</a></p>
+                {% endif %}
+            </li>
         </ul>
   <div>
     {% render_table table %}
