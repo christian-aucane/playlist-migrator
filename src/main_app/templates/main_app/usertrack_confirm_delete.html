@@ -1,0 +1,20 @@
+{% extends 'main_app/base.html' %}
+{% load platforms_filters %}
+
+{% block app %}
+    <main>
+
+
+        <p></p>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <h1>Voulez-vous vraiment supprimer cette musique ?</h1>
+            <input type="submit" value="Oui">
+            <a href="{% url 'main_app:user_track_table' %}"><input type="button" value="Non"></a>
+        </form>
+
+    </main>
+
+{% endblock app %}

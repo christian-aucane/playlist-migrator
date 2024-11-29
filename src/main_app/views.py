@@ -1,10 +1,12 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
+from django_tables2 import SingleTableView
 
 from main_app.models import UserTrack
+from main_app.tables import UserTrackTable
 from platforms.service import PlatformService
 
 
@@ -27,4 +29,20 @@ class UpdateSavedTracksView(LoginRequiredMixin, View):
 
         # TODO : ajouter gestion d'erreur
 
-        return HttpResponseRedirect(reverse("main_app:index"))
+        return HttpResponseRedirect(reverse("main_app:tracks"))
+
+
+class UserTrackDeleteView(LoginRequiredMixin, DeleteView):
+    model = UserTrack
+    success_url = reverse_lazy("main_app:user_track_table")
+
+class UserTrackTableView(LoginRequiredMixin, SingleTableView):
+    model = UserTrack
+    table_class = UserTrackTable
+    template_name = "main_app/tracks.html"
+
+    def get_queryset(self):
+        """
+        Returns tracks related to the logged-in user.
+        """
+        return UserTrack.objects.filter(user=self.request.user).select_related("track")

@@ -7,16 +7,13 @@
 
         <p>Cette application est la base de l'application de playlist.</p>
 
-        <h2>Spotify</h2>
 
-        {% if user|is_connected_to_platform:"spotify" %}
-            <p>
-                <a href="{% url 'main_app:update_saved_tracks' platform='spotify' %}">Voir mes musiques</a>
-                <a href="{% url 'platforms:disconnect' platform='spotify' %}">Déconnecter</a>
-            </p>
-        {% else %}
-            <p><a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a></p>
-        {% endif %}
+        <h2>Menu</h2>
+
+        <ul>
+            <li><a href="{% url 'main_app:user_track_table' %}">Mes musiques</a></li>
+        </ul>
+
     </main>
 
 {% endblock app %}
