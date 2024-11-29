@@ -105,5 +105,5 @@ class UserTrack(models.Model):
         return f"{self.user}: {self.track} ({self.from_platform})"
 
     def get_delete_url(self):
-        return reverse("main_app:delete_user_track", kwargs={"pk": self.pk})
+        return reverse("main_app:user_track_delete", kwargs={"pk": self.pk})
 
