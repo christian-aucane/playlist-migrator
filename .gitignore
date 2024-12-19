@@ -114,3 +114,6 @@ GitHub.sublime-settings
 
 # secrets
 client_secrets.json
+
+# debug data
+raw_data/*
