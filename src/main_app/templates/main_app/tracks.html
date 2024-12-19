@@ -9,7 +9,6 @@
         <ul>
             <li>
                 Spotify
-
                 {% if user|is_connected_to_platform:"spotify" %}
                     <p>
                         <a href="{% url 'main_app:update_saved_tracks' platform='spotify' %}">Recharger la liste</a>
@@ -33,6 +32,8 @@
             </li>
         </ul>
   <div>
+    <!-- TODO : supprimer ce bouton ? -->
+      <a href="{% url 'main_app:user_track_clear' %}" style="color: red">Vider la liste</a>
     {% render_table table %}
   </div>
 {% endblock %}
