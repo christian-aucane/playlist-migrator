@@ -1,12 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 
 from .clients import get_client_for_platform
-from .models import OAuthToken, PlatformServiceLog
-from main_app.utils.track_utils import save_user_track
+from .models import OAuthToken
 
 
 # ==============================================================================
@@ -21,7 +19,6 @@ class BasePlatformView(LoginRequiredMixin, View):
 # ==============================================================================
 # Auth views
 # ==============================================================================
-
 class OAuthRedirectView(BasePlatformView):
     def get(self, request, platform):
         """
@@ -57,7 +54,7 @@ class OAuthCallbackView(BasePlatformView):
         return HttpResponseRedirect(reverse("main_app:index"))
 
 
-class DisconnectPlatformView(View):
+class DisconnectPlatformView(BasePlatformView):
     def get(self, request, platform):
         """
         Disconnects the user from the given platform.
