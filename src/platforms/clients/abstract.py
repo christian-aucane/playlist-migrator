@@ -1,4 +1,8 @@
+import json
 from abc import ABC, abstractmethod
+from difflib import SequenceMatcher
+
+from django.conf import settings
 
 
 class AbstractParser(ABC):
@@ -6,8 +10,28 @@ class AbstractParser(ABC):
     Abstract class for all APIs parsers
     """
 
+    @staticmethod
     @abstractmethod
-    def parse_saved_tracks(self, data):
+    def parse_track(data):
+        """
+        Parse the data returned by the API
+
+        Parameters:
+        data: The raw data returned by the API
+
+        Returns: A track dict or None
+            {
+                "title": track_title, (str)
+                "artist": artist_names, (str)
+                "album": album_name, (str)
+                "duration_ms": duration_ms, (int)
+                "platform_id": track_id, (str)
+                "url": track_url, (str)
+            }
+        """
+        pass
+
+    def parse_tracks(self, data):
         """
         Parse the data returned by the API
 
@@ -24,8 +48,13 @@ class AbstractParser(ABC):
                 "url": track_url, (str)
             }
         """
-        # TODO : vérifier le format de la sortie ??
-        pass
+        parsed_data = []
+
+        for track in data:
+            parsed_track = self.parse_track(track)
+            if parsed_track is not None:
+                parsed_data.append(parsed_track)
+        return parsed_data
 
 
 class AbstractClient(ABC):
@@ -48,7 +77,63 @@ class AbstractClient(ABC):
         Returns the saved tracks for the authenticated user
         """
         data = self.fetch_saved_tracks()
-        return self.parser.parse_saved_tracks(data)
+
+        if settings.DEBUG:  # TODO : supprimer ce bout de code ??
+            with open(settings.BASE_DIR.parent / "raw_data" / f"saved_tracks_{self.__class__.__name__}.json", "w") as f:
+                json.dump(data, f, indent=4)
+
+        return self.parser.parse_tracks(data)
+
+    def search_track(self, title, artist):
+        """
+        Search for track using the authenticated user's access token
+        """
+        data = self.fetch_search(query=self.concat_query(title, artist), limit=1)
+        try:
+            if settings.DEBUG:  # TODO : supprimer ce bout de code ??
+                with open(settings.BASE_DIR.parent / "raw_data" / f"search_track_{self.__class__.__name__}_{title}_{artist}.json",
+                          "w") as f:
+                    json.dump(data, f, indent=4)
+        except OSError:
+            pass
+
+        if len(data) == 0:
+            return None
+
+        parsed_track = self.parser.parse_track(data[0])
+
+        if self._check_search_similarity(parsed_track, title, artist):
+            return parsed_track
+
+        return None
+
+    @staticmethod
+    def _check_search_similarity(track_data, title, artist, threshold=0.5):
+        """
+        Check if the track is compatible with the title and artist using a similarity score.
+
+        Args:
+            track (dict): The track data parsed from the platform.
+            title (str): The title to compare.
+            artist (str): The artist to compare.
+            threshold (float): The minimum similarity score (between 0 and 1) to consider a match.
+
+        Returns:
+            bool: True if the track is compatible, False otherwise.
+        """
+        # TODO : améliorer la similarité ??
+        title_similarity = SequenceMatcher(None, track_data["title"].lower(), title.lower()).ratio()
+        artist_similarity = SequenceMatcher(None, track_data["artist"].lower(), artist.lower()).ratio()
+        print("title_similarity", title_similarity)
+        print("artist_similarity", artist_similarity)
+        return title_similarity >= threshold and artist_similarity >= threshold
+
+    @staticmethod
+    def concat_query(title, artist):
+        """
+        Concatenate the title and artist
+        """
+        return f"{title} {artist}"
 
     @abstractmethod
     def get_auth_url(self):
@@ -97,6 +182,49 @@ class AbstractClient(ABC):
         Use self.client to get the list of saved tracks
 
         Returns: Raw data of the saved tracks
+        """
+        pass
+
+    @abstractmethod
+    def fetch_search(self, query, limit):
+        """
+        Use self.client to search for a track
+
+        Parameters
+        query: The query to search for
+        limit: The maximum number of results
+
+        Returns: Raw data of the search
+        """
+        pass
+
+    @abstractmethod
+    def like_track(self, track_id):
+        """
+        Use self.client to like a track
+
+        Returns
+        bool: True if success, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def unlike_track(self, track_id):
+        """
+        Use self.client to unlike a track
+
+        Returns
+        bool: True if success, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def clear_saved_tracks(self):
+        """
+        Use self.client to clear saved tracks
+
+        Returns
+        bool: True if success, False otherwise
         """
         pass
 

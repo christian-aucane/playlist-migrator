@@ -2,10 +2,6 @@ from .clients import get_client_for_platform
 from .models import OAuthToken, PlatformServiceLog
 
 
-class NoAccessTokenError(Exception):
-    pass
-
-
 class PlatformService:
     """
     Platform service class.
@@ -20,6 +16,13 @@ class PlatformService:
         NoAccessTokenError: If the user does not have an access token for the platform.
         ValueError: If an error occurs while initializing the client.
     """
+
+    class NoAccessTokenError(Exception):
+        """
+        Exception raised when the user does not have an access token for the platform.
+        """
+        pass
+
     def __init__(self, user, platform):
         self.user = user
         self.platform = platform
@@ -28,7 +31,7 @@ class PlatformService:
             token = OAuthToken.objects.get(user=user, platform=platform)
             self.client.authenticate_with_token_data(token_data=token.get_data_as_dict())
         except OAuthToken.DoesNotExist:
-            raise NoAccessTokenError(f"User does not have an access token for {platform}.")
+            raise PlatformService.NoAccessTokenError(f"User does not have an access token for {platform}.")
 
     def _log_action(self, action, metadata):
         """
@@ -51,16 +54,62 @@ class PlatformService:
         self._log_action(action="fetch_saved_tracks", metadata={"count": len(saved_tracks)})
         return saved_tracks
 
-    def search_tracks(self, query):
+    def search_track(self, title, artist):
         """
         Searches for tracks using the user's access token and logs the action in the database.
 
         Args:
-            query (str): The search query.
+            title (str): The title of the track to search for.
+            artist (str): The artist of the track to search for.
 
         Returns:
             A list of tracks.
         """
-        tracks = self.client.search_tracks(query=query)
-        self._log_action(action="search", metadata={"count": len(tracks)})
-        return tracks
+        track = self.client.search_track(title=title, artist=artist)
+
+        self._log_action(action="search_track", metadata={"query": {"title": title, "artist": artist},
+                                                          "success": track is not None})
+
+        return track
+
+    def like_track(self, track_id):
+        """
+        Likes a track using the user's access token and logs the action in the database.
+
+        Args:
+            track_id (str): The ID of the track to like.
+
+        Returns:
+            bool: True if the track was liked successfully, False otherwise.
+        """
+        success = self.client.like_track(track_id=track_id)
+        self._log_action(action="like_track", metadata={"track_id": track_id, "success": success})
+
+        return success
+
+    def unlike_track(self, track_id):
+        """
+        Unlikes a track using the user's access token and logs the action in the database.
+
+        Args:
+            track_id (str): The ID of the track to unlike.
+
+        Returns:
+            bool: True if the track was unliked successfully, False otherwise.
+        """
+        success = self.client.unlike_track(track_id=track_id)
+        self._log_action(action="unlike_track", metadata={"track_id": track_id, "success": success})
+
+        return success
+
+    def clear_saved_tracks(self):
+        """
+        Clears the user's saved tracks using the user's access token and logs the action in the database.
+
+        Returns:
+            bool: True if the saved tracks were cleared successfully, False otherwise.
+        """
+        success = self.client.clear_saved_tracks()
+        self._log_action(action="clear_saved_tracks", metadata={"success": success})
+
+        return success

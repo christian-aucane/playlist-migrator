@@ -1,12 +1,13 @@
-import json
+import re
 
-from django.conf import settings
 from django.utils import timezone
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+
+import isodate
 
 from .abstract import AbstractParser, AbstractClient
 
@@ -16,14 +17,15 @@ class YoutubeParser(AbstractParser):
     Parser for the YouTube API
     """
 
-    def parse_saved_tracks(self, data):
+    @staticmethod
+    def parse_track(data):
         """
         Parse the data returned by the API
 
         Parameters:
         data: The raw data returned by the API
 
-        Returns: A list of track dicts
+        Returns: A track dict
             {
                 "title": track_title, (str)
                 "artist": artist_names, (str)
@@ -33,24 +35,75 @@ class YoutubeParser(AbstractParser):
                 "url": track_url, (str)
             }
         """
-        parsed_data = []
+        snippet = data["snippet"]
+        # TODO : ajouter d'autres catégories ?
+        category_id = snippet.get("categoryId")
+        if category_id is not None and category_id != "10":
+            return None
 
-        # TODO : améliorer le parsing des tracks ( vérifier si c'est de la musique, extraire l'artiste du titre ....)
 
-        for item in data:
-            track = item["snippet"]
-            parsed_data.append(
-                {
-                    "title": track["title"],
-                    "artist": track["channelTitle"],  # TODO : extraire l'artiste du titre ?
-                    "album": None,  # TODO : ajouter l'album dans les données de l'API ?
-                    "duration_ms": 0,  # TODO : ajouter la durée dans les données de l'API
-                    "platform_id": item["id"],
-                    "url": f"https://www.youtube.com/watch?v={item['id']}",
-                }
-            )
+        content_details = data.get("contentDetails")
 
-        return parsed_data
+        if content_details is None:
+            duration_ms = 0
+            platform_id = data["id"]["videoId"]
+        else:
+            duration_ms = YoutubeParser._parse_duration_ms(content_details["duration"])
+            platform_id = data["id"]
+
+        track_title = snippet["title"]
+        channel_title = snippet["channelTitle"]
+        title, artist = YoutubeParser._extract_title_and_artist(track_title, channel_title)
+        return {
+            "title": title,
+            "artist": artist,
+            "album": None,  # TODO : ajouter l'album dans les données de l'API ?
+            "duration_ms": duration_ms,
+            "platform_id": platform_id,
+            "url": f"https://www.youtube.com/watch?v={platform_id}",
+        }
+
+    @staticmethod
+    def _parse_duration_ms(duration):
+        """
+        Parse the duration string into milliseconds
+
+        Parameters:
+        duration: The duration string
+
+        Returns: The duration in milliseconds
+        """
+        duration = isodate.parse_duration(duration)
+        return duration.total_seconds() * 1000
+
+
+    @staticmethod
+    def _extract_title_and_artist(title, channel_title):
+        """
+        Extract the title and artist from the track title and channel title
+
+        Parameters:
+        title: The track title
+        channel_title: The channel title
+
+        Returns: The title and artist
+        """
+        # TODO : améliorer l'extraction au fur et a mesure, comment ??
+
+        title = title
+        artist = channel_title
+
+        # TODO : ajouter les feat dans artist
+
+        parts = title.split("-")
+        if len(parts) >= 2:
+            artist = parts[0].strip()
+            title = "-".join(parts[1:]).strip()
+        title = re.sub(r"\(.*?\)", "", title)
+        title = re.sub(r'\[[^\]]*\]', '', title)
+
+
+        return title, artist
 
 
 class YoutubeClient(AbstractClient):
@@ -139,7 +192,7 @@ class YoutubeClient(AbstractClient):
         Returns: Raw data of the saved tracks
         """
         request = self.client.videos().list(
-            part="snippet",
+            part="snippet,contentDetails",
             myRating="like"
         )
 
@@ -149,3 +202,48 @@ class YoutubeClient(AbstractClient):
             tracks.extend(response["items"])
             request = self.client.videos().list_next(request, response)
         return tracks
+
+    def fetch_search(self, query, limit=10):
+        """
+        Use self.client to search a track
+
+        Returns: Raw data of the search
+        """
+
+        request = self.client.search().list(
+            part="snippet",
+
+            q=query,
+            maxResults=limit
+        )
+
+        data = request.execute()
+
+        return data["items"]
+
+    def like_track(self, track_id):
+        """
+        Use self.client to like a track
+        """
+        request = self.client.videos().rate(id=track_id, rating="like")
+        request.execute()
+
+        return True
+
+    def unlike_track(self, track_id):
+        """
+        Use self.client to unlike a track
+        """
+        request = self.client.videos().rate(id=track_id, rating="none")
+        request.execute()
+
+        return True
+
+    def clear_saved_tracks(self):
+        """
+        Use self.client to clear saved tracks
+        """
+        request = self.client.videos().deleteRating()
+        request.execute()
+
+        return True

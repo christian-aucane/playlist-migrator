@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from django.utils import timezone
 
 from spotipy import SpotifyOAuth, Spotify
@@ -10,30 +12,32 @@ class SpotifyParser(AbstractParser):
     Parser for the Spotify API
     """
 
-    def parse_saved_tracks(self, data):
+    @staticmethod
+    def parse_track(data):
         """
         Parse the data returned by the API
 
         Parameters:
         data: The raw data returned by the API
 
-        Returns: A list of tracks dicts
+        Returns: A track dict
+            {
+                "title": track_title, (str)
+                "artist": artist_names, (str)
+                "album": album_name, (str)
+                "duration_ms": duration_ms, (int)
+                "platform_id": track_id, (str)
+                "url": track_url, (str)
+            }
         """
-        parsed_data = []
-
-        for item in data["items"]:
-            track = item["track"]
-            parsed_data.append(
-                {
-                    "title": track["name"],
-                    "artist": ", ".join([artist["name"] for artist in track["artists"]]),
-                    "album": track["album"]["name"],
-                    "duration_ms": track["duration_ms"],
-                    "platform_id": track["id"],
-                    "url": track["external_urls"]["spotify"],
-                }
-            )
-        return parsed_data
+        return {
+            "title": data["name"],
+            "artist": ", ".join([artist["name"] for artist in data["artists"]]),
+            "album": data["album"]["name"],
+            "duration_ms": data["duration_ms"],
+            "platform_id": data["id"],
+            "url": data["external_urls"]["spotify"],
+        }
 
 
 class SpotifyClient(AbstractClient):
@@ -67,7 +71,6 @@ class SpotifyClient(AbstractClient):
         Parameters:
         - code: The authorization code received from the callback.
         """
-        # TODO : instancier client spotify
         token = self.auth_manager.get_access_token(code)
         self.token_data = {
             "access_token": token["access_token"],
@@ -116,5 +119,58 @@ class SpotifyClient(AbstractClient):
 
         Returns: Raw data of the saved tracks
         """
-        return self.client.current_user_saved_tracks()
+        tracks = []
 
+        while True:
+            data = self.client.current_user_saved_tracks(limit=50, offset=len(tracks))
+
+            for track in data["items"]:
+                tracks.append(track["track"])
+            if len(tracks) >= data["total"]:
+                break
+        return tracks
+
+    def fetch_search(self, query, limit=10):
+        """
+        Use self.client to search for tracks
+
+        Returns: Raw data of the search
+        """
+        data = self.client.search(q=query, type="track", limit=limit)
+        return data["tracks"]["items"]
+
+    def like_track(self, track_id):
+        """
+        Use self.client to like a track
+
+        Parameters
+        track_id: The id of the track
+
+        Returns
+        bool: True if success, False otherwise
+        """
+        self.client.current_user_saved_tracks_add([track_id])
+        return True
+
+    def unlike_track(self, track_id):
+        """
+        Use self.client to unlike a track
+
+        Parameters
+        track_id: The id of the track
+
+        Returns
+        bool: True if success, False otherwise
+        """
+        self.client.current_user_saved_tracks_delete([track_id])
+        return True
+
+    def clear_saved_tracks(self):
+        """
+        Use self.client to clear saved tracks
+
+        Returns
+        bool: True if success, False otherwise
+        """
+        self.client.current_user_saved_tracks_delete()
+        return True
