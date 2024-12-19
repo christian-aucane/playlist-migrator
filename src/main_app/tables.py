@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
-from main_app.models import UserTrack
+from .models import UserTrack
 
 
 class UserTrackTable(tables.Table):

@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from django.utils import timezone
 
 from spotipy import SpotifyOAuth, Spotify

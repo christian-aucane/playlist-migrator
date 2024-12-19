@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import transaction
 
-from main_app.models import Track, TrackPlatformInfo, UserTrack
+from .models import Track, TrackPlatformInfo, UserTrack
 from platforms.services import PlatformService
 
 
@@ -199,8 +199,8 @@ class MainAppService:
             track__platform_infos__platform_id__in=current_platform_ids - fetched_platform_ids
         )
 
-        print("New tracks: ", new_tracks)
-        print("Tracks to remove: ", tracks_to_remove)
+        print("New tracks: ", len(new_tracks))
+        print("Tracks to remove: ", len(tracks_to_remove))
 
         # Add new tracks
         for track_data in new_tracks:

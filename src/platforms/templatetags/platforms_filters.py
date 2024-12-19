@@ -1,6 +1,6 @@
 from django import template
 
-from platforms.models import OAuthToken
+from ..models import OAuthToken
 
 
 register = template.Library()

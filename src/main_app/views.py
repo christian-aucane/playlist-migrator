@@ -1,20 +1,14 @@
-from pprint import pprint
-
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django_tables2 import SingleTableView
 
-from main_app.models import UserTrack, Track
-from main_app.services import MainAppService
-from main_app.tables import UserTrackTable
-from platforms.models import OAuthToken
-from platforms.services import PlatformService
+from .models import UserTrack
+from .services import MainAppService
+from .tables import UserTrackTable
 
 
 class AppIndexView(LoginRequiredMixin, TemplateView):
