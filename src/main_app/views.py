@@ -1,13 +1,20 @@
+from pprint import pprint
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django_tables2 import SingleTableView
 
-from main_app.models import UserTrack
+from main_app.models import UserTrack, Track
+from main_app.services import MainAppService
 from main_app.tables import UserTrackTable
-from platforms.service import PlatformService
+from platforms.models import OAuthToken
+from platforms.services import PlatformService
 
 
 class AppIndexView(LoginRequiredMixin, TemplateView):
@@ -16,25 +23,26 @@ class AppIndexView(LoginRequiredMixin, TemplateView):
 
 class UpdateSavedTracksView(LoginRequiredMixin, View):
     def get(self, request, platform):
-        platform_service = PlatformService(platform=platform, user=request.user)
+        app_service = MainAppService(user=request.user)
+        success = app_service.update_user_tracks(platform=platform)
 
-        saved_tracks = platform_service.fetch_saved_tracks()
-        # TODO : créer un service qui sauvegarde les tracks, et vérifie si elles existent pour les autres plateformes
-        for saved_track in saved_tracks:
-            UserTrack.objects.add_user_track(
-                user=request.user,
-                track_data=saved_track,
-                platform=platform
-            )
-
-        # TODO : ajouter gestion d'erreur
-
-        return HttpResponseRedirect(reverse("main_app:tracks"))
+        if success:
+            messages.success(request, "Saved tracks updated successfully.")
+        else:
+            messages.error(request, "Failed to update saved tracks.")
+        return HttpResponseRedirect(reverse("main_app:user_track_table"))
 
 
 class UserTrackDeleteView(LoginRequiredMixin, DeleteView):
     model = UserTrack
     success_url = reverse_lazy("main_app:user_track_table")
+
+
+class UserTrackClearView(LoginRequiredMixin, View):
+    def get(self, request):
+        UserTrack.objects.filter(user=request.user).delete()
+        return HttpResponseRedirect(reverse("main_app:user_track_table"))
+
 
 class UserTrackTableView(LoginRequiredMixin, SingleTableView):
     model = UserTrack
