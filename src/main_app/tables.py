@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
 from main_app.models import UserTrack
@@ -32,26 +33,23 @@ class UserTrackTable(tables.Table):
         return f"{duration_s / 60:.0f}:{duration_s % 60:02.0f}"
 
     def render_spotify(self, record):
-        return self._render_platform_column(platform="spotify", record=record)
+        track = record.track
+        if track.is_avaiable_on_platform(platform="spotify"):
+            platform_id = track.platform_infos.get(platform="spotify").platform_id
+            # TODO : Débugger iframe !!! ( erreurs dans le navigateur )
+            return render_to_string("main_app/partials/spotify_embed.html", {"platform_id": platform_id})
+        return "Pas dispo"
 
     def render_youtube(self, record):
-        return self._render_platform_column(platform="youtube", record=record)
+        track = record.track
+        if track.is_avaiable_on_platform(platform="youtube"):
+            platform_id = track.platform_infos.get(platform="youtube").platform_id
+            # TODO : débugger iframe !!! ( erreurs dans le navigateur )
+            return render_to_string("main_app/partials/youtube_embed.html", {"platform_id": platform_id})
+        return "Pas dispo"
 
     def render_delete(self, record):
-        # TODO : inclure directement le formulaire de suppression
         return mark_safe(f"<a href='{record.get_delete_url()}'>Delete</a>")
-
-    @staticmethod
-    def _render_platform_column(platform, record):
-        """
-        Dynamically adds a render method for the given platform.
-        """
-        track = record.track
-        if track.is_avaiable_on_platform(platform=platform):
-            url = track.platform_infos.get(platform=platform).url
-            # TODO : transformer en lecteur dynamique ?
-            return mark_safe(f"<a target='_blank' href='{url}'>Link</a>") if url else "dispo"
-        return "pas dispo"
 
     class Meta:
         model = UserTrack
