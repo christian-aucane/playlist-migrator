@@ -36,6 +36,8 @@ class TrackPlatformInfo(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # TODO : ajouter image (url ou fichier ?)
+
     class Meta:
         unique_together = ("track", "platform")
         ordering = ["platform"]
@@ -44,42 +46,6 @@ class TrackPlatformInfo(models.Model):
 
     def __str__(self):
         return f"{self.platform}: {self.track} ({self.platform_id})"
-
-
-class UserTrackManager(models.Manager):
-    """
-    Custom manager for the UserTrack model.
-    """
-    @transaction.atomic
-    def add_user_track(self, user, track_data, platform):
-        """
-        Add a track to a user's list of saved tracks.
-        """
-        track, _ = Track.objects.get_or_create(
-            title=track_data["title"],
-            artist=track_data["artist"],
-            album=track_data.get("album"),
-            defaults={"duration_ms": track_data.get("duration_ms")}
-        )
-
-        # Add platform info
-        platform_info, _ = TrackPlatformInfo.objects.get_or_create(
-            track=track,
-            platform=platform,
-            defaults={
-                "platform_id": track_data["platform_id"],
-                "url": track_data["url"],
-            }
-        )
-
-        # Associate track with user
-        user_track, created = self.get_or_create(
-            user=user,
-            track=track,
-            from_platform=platform
-        )
-
-        return user_track, created
 
 
 class UserTrack(models.Model):
@@ -92,8 +58,6 @@ class UserTrack(models.Model):
                                      choices=[(platform, platform) for platform in settings.AVAILABLE_PLATFORMS])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    objects = UserTrackManager()
 
     class Meta:
         unique_together = ("user", "track", "from_platform")

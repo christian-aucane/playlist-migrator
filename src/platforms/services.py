@@ -29,8 +29,6 @@ class PlatformService:
             self.client.authenticate_with_token_data(token_data=token.get_data_as_dict())
         except OAuthToken.DoesNotExist:
             raise NoAccessTokenError(f"User does not have an access token for {platform}.")
-        except Exception as e:
-            raise ValueError(f"An error occurred while initializing the client: {str(e)}")
 
     def _log_action(self, action, metadata):
         """
@@ -52,3 +50,17 @@ class PlatformService:
         saved_tracks = self.client.get_saved_tracks()
         self._log_action(action="fetch_saved_tracks", metadata={"count": len(saved_tracks)})
         return saved_tracks
+
+    def search_tracks(self, query):
+        """
+        Searches for tracks using the user's access token and logs the action in the database.
+
+        Args:
+            query (str): The search query.
+
+        Returns:
+            A list of tracks.
+        """
+        tracks = self.client.search_tracks(query=query)
+        self._log_action(action="search", metadata={"count": len(tracks)})
+        return tracks
