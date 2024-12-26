@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 Deployment checklist
 See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 """
-
-
+import sys
 from pathlib import Path
 
 import environ
@@ -188,7 +187,6 @@ AVAILABLE_PLATFORMS = list(PLATFORMS_CLIENTS.keys())
 
 YOUTUBE_API_KEY = env("YOUTUBE_API_KEY")  # TODO : ajouter au fichier client_secrets.json ?
 
-
 if MODE == "DEV":
 
     # Static files (CSS, JavaScript, Images)
@@ -203,3 +201,4 @@ if MODE == "DEV":
 
     INSTALLED_APPS += ['debug_toolbar']
     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    INTERNAL_IPS = ["127.0.0.1"]
