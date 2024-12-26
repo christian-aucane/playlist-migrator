@@ -115,6 +115,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "platforms.context_processors.available_platforms"
             ],
         },
     },
@@ -169,7 +170,7 @@ PLATFORMS_CLIENTS = {
     "youtube": {
         "client_class": "platforms.clients.youtube.YoutubeClient",
         "client_kwargs": {
-            "client_secrets_file": BASE_DIR.parent /"client_secrets.json",
+            "client_secrets_file": BASE_DIR.parent / "client_secrets.json",
             "scopes": ["https://www.googleapis.com/auth/youtube.readonly"],
         }
     },
@@ -185,6 +186,8 @@ PLATFORMS_CLIENTS = {
 
 AVAILABLE_PLATFORMS = list(PLATFORMS_CLIENTS.keys())
 
+YOUTUBE_API_KEY = env("YOUTUBE_API_KEY")  # TODO : ajouter au fichier client_secrets.json ?
+
 
 if MODE == "DEV":
 
@@ -199,5 +202,4 @@ if MODE == "DEV":
     MEDIA_ROOT = BASE_DIR / 'media'
 
     INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
-    
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
