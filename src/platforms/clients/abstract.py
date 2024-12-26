@@ -5,6 +5,8 @@ from difflib import SequenceMatcher
 from django.conf import settings
 
 
+# TODO : ajouter attribut self.authenticated et vérifier pour chaque appel qui demande une authentification si self.authenticated is True
+
 class AbstractParser(ABC):
     """
     Abstract class for all APIs parsers
@@ -66,6 +68,7 @@ class AbstractClient(ABC):
     def __init__(self):
         self._token_data = None
         self._client = None
+        self._authenticated = False
         if self.parser_class is None or not issubclass(self.parser_class, AbstractParser):
             raise TypeError(
                 f"{self.__class__.__name__} must define a parser_class that inherits from BaseParser."
@@ -177,6 +180,13 @@ class AbstractClient(ABC):
         pass
 
     @abstractmethod
+    def set_unauthenticated_client(self):
+        """
+        - Set self.client without user authentication
+        """
+        pass
+
+    @abstractmethod
     def fetch_saved_tracks(self):
         """
         Use self.client to get the list of saved tracks
@@ -265,8 +275,10 @@ class AbstractClient(ABC):
         Returns the client
         """
         if self._client is None:
-            raise ValueError("You need to authenticate the client first."
-                             "Call authenticate_with_code(code) or authenticate_with_token_data(token_data) first.")
+            raise ValueError("You need to create the client first."
+                             "Call authenticate_with_code(code),"
+                             "authenticate_with_token_data(token_data),"
+                             "or set_unauthenticated_client() first.")
         return self._client
 
     @client.setter

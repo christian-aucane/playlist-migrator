@@ -73,10 +73,17 @@ class OAuthToken(models.Model):
 
         return True
 
+    @classmethod
+    def get_user_platforms(cls, user):
+        tokens = OAuthToken.objects.filter(user=user)
+        if tokens is not None:
+            return [token.platform for token in tokens]
+        return []
+
 
 class PlatformServiceLog(models.Model):
     """Model for tracking user platform actions."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     platform = models.CharField(max_length=255,
                                 choices=[(platform, platform) for platform in settings.AVAILABLE_PLATFORMS])
     action = models.CharField(max_length=255)  # TODO : Ajouter les actions possibles dans choices

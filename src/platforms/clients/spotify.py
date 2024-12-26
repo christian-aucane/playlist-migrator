@@ -31,7 +31,7 @@ class SpotifyParser(AbstractParser):
         return {
             "title": data["name"],
             "artist": ", ".join([artist["name"] for artist in data["artists"]]),
-            "album": data["album"]["name"],
+            "album": data["album"]["name"] if data["album"]["album_type"] == "album" else None,
             "duration_ms": data["duration_ms"],
             "platform_id": data["id"],
             "url": data["external_urls"]["spotify"],
@@ -110,6 +110,12 @@ class SpotifyClient(AbstractClient):
             self.token_data = token_data
 
         self.client = Spotify(auth=self.token_data["access_token"])
+
+    def set_unauthenticated_client(self):
+        """
+        Set self.client without user authentication
+        """
+        self.client = Spotify(auth_manager=self.auth_manager)
 
     def fetch_saved_tracks(self):
         """

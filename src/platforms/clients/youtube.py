@@ -1,5 +1,7 @@
 import re
+from pprint import pprint
 
+from django.conf import settings
 from django.utils import timezone
 
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -57,7 +59,7 @@ class YoutubeParser(AbstractParser):
         return {
             "title": title,
             "artist": artist,
-            "album": None,  # TODO : ajouter l'album dans les données de l'API ?
+            "album": None,
             "duration_ms": duration_ms,
             "platform_id": platform_id,
             "url": f"https://www.youtube.com/watch?v={platform_id}",
@@ -101,7 +103,6 @@ class YoutubeParser(AbstractParser):
             title = "-".join(parts[1:]).strip()
         title = re.sub(r"\(.*?\)", "", title)
         title = re.sub(r'\[[^\]]*\]', '', title)
-
 
         return title, artist
 
@@ -184,6 +185,12 @@ class YoutubeClient(AbstractClient):
 
         # Instantiate the YouTube service client
         self.client = build("youtube", "v3", credentials=credentials)
+
+    def set_unauthenticated_client(self):
+        """
+        Set self.client without user authentication
+        """
+        self.client = build("youtube", "v3", developerKey=settings.YOUTUBE_API_KEY)
 
     def fetch_saved_tracks(self):
         """
