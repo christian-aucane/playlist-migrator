@@ -14,3 +14,9 @@ def is_connected_to_platform(user, platform):
     if user.is_authenticated:
         return OAuthToken.is_user_connected_to_platform(user, platform)
     return False
+
+@register.filter
+def get_user_platforms(user):
+    if user.is_authenticated:
+        return OAuthToken.get_user_platforms(user)
+    return []
