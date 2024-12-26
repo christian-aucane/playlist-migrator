@@ -1,5 +1,4 @@
 import re
-from pprint import pprint
 
 from django.conf import settings
 from django.utils import timezone
@@ -43,7 +42,6 @@ class YoutubeParser(AbstractParser):
         if category_id is not None and category_id != "10":
             return None
 
-
         content_details = data.get("contentDetails")
 
         if content_details is None:
@@ -77,7 +75,6 @@ class YoutubeParser(AbstractParser):
         """
         duration = isodate.parse_duration(duration)
         return duration.total_seconds() * 1000
-
 
     @staticmethod
     def _extract_title_and_artist(title, channel_title):
@@ -216,7 +213,6 @@ class YoutubeClient(AbstractClient):
 
         Returns: Raw data of the search
         """
-
         request = self.client.search().list(
             part="snippet",
 

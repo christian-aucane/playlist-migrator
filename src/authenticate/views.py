@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.views.generic import TemplateView, CreateView
+from django.contrib.auth.forms import AuthenticationForm
+from django.views.generic import CreateView
 
 from authenticate.forms import CustomUserCreationForm
 

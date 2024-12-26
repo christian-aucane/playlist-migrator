@@ -65,6 +65,9 @@ class OAuthToken(models.Model):
 
     @classmethod
     def is_user_connected_to_platform(cls, user, platform):
+        """
+        A classmethod to know if the user is connected to the given platform
+        """
         if not user.is_authenticated:
             raise ValueError("User is not authenticated.")
         obj = cls.objects.filter(user=user, platform=platform).first()
@@ -75,6 +78,9 @@ class OAuthToken(models.Model):
 
     @classmethod
     def get_user_platforms(cls, user):
+        """
+        A class method to get the platforms where user is connected
+        """
         tokens = OAuthToken.objects.filter(user=user)
         if tokens is not None:
             return [token.platform for token in tokens]

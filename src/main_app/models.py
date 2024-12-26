@@ -70,4 +70,3 @@ class UserTrack(models.Model):
 
     def get_delete_url(self):
         return reverse("main_app:user_track_delete", kwargs={"pk": self.pk})
-
