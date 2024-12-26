@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -11,7 +12,8 @@ from .models import OAuthToken
 # BASE CLASSES
 # ==============================================================================
 class BasePlatformView(LoginRequiredMixin, View):
-    def get_client(self, platform):
+    @staticmethod
+    def get_client(platform):
         """Retrieves the client associated with the given platform."""
         return get_client_for_platform(platform)
 
@@ -59,7 +61,17 @@ class DisconnectPlatformView(BasePlatformView):
         """
         Disconnects the user from the given platform.
         """
-        OAuthToken.objects.filter(user=request.user, platform=platform).delete()
+        filters = {"user": request.user}
 
-        # TODO : ajouter un message de confirmation
+        if platform != "all":
+            filters["platform"] = platform
+
+        tokens = OAuthToken.objects.filter(**filters)
+
+        if tokens is None:
+            messages.error(request, "No account to disconnect")
+        else:
+            tokens.delete()
+            messages.success(request, "Disconnected successfully")
+
         return HttpResponseRedirect(reverse("main_app:index"))
