@@ -8,10 +8,13 @@
         <h1>Bienvenue</h1>
         <h2>Accès aux fonctionnalités</h2>
         {% if user.is_authenticated %}
-            <!-- TODO : ajouter un lien vers la page de l'application -->
             <a href="{% url 'main_app:index' %}">Acceder a l'application</a>
         {% else %}
-            <p>Veuillez vous <a href="{% url 'authenticate:login' %}">connecter</a> pour accéder à toutes les fonctionnalités.</p>
+            <p>
+                <a href="{% url 'authenticate:login' %}">Connectez-vous</a> ou
+                <a href="{% url 'authenticate:signup' %}">inscrivez-vous</a>
+                pour accéder à toutes les fonctionnalités.
+            </p>
         {% endif %}
     </main>
 
