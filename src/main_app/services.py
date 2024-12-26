@@ -26,7 +26,7 @@ class MainAppService:
             artist (str): The artist of the track.
 
         Returns:
-            track (Track): The retrieved track.
+            track (Track or NoneType): The retrieved track or None if track is not found.
         """
         # TODO : améliorer la recherche ?
         track = Track.objects.filter(title=title, artist=artist).first()
@@ -49,15 +49,13 @@ class MainAppService:
         """
         track = self.search_track(title, artist)
 
-        if track:
-            if album and track.album != album:
+        if track is not None:
+            if album is not None and track.album != album:
                 track.album = album
-            if duration_ms and track.duration_ms != duration_ms:
+            if duration_ms is not None and track.duration_ms != duration_ms:
                 track.duration_ms = duration_ms
-
             track.save()
             created = False
-
         else:
             track = Track.objects.create(
                 title=title,
@@ -93,10 +91,7 @@ class MainAppService:
 
             print(f"Searching and creating on {platform_name}")
 
-            try:
-                platform_service = PlatformService(user=self.user, platform=platform_name)
-            except PlatformService.NoAccessTokenError:
-                continue
+            platform_service = PlatformService(platform=platform_name)
 
             track_data = platform_service.search_track(track.title, track.artist)
 

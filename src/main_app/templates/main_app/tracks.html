@@ -7,29 +7,19 @@
     <h1>Mes musiques</h1>
     <h2>Plateformes</h2>
         <ul>
-            <li>
-                Spotify
-                {% if user|is_connected_to_platform:"spotify" %}
-                    <p>
-                        <a href="{% url 'main_app:update_saved_tracks' platform='spotify' %}">Recharger la liste</a>
-                        <a href="{% url 'platforms:disconnect' platform='spotify' %}">Déconnecter</a>
-                    </p>
-                {% else %}
-                    <p><a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a></p>
-                {% endif %}
-            </li>
-            <li>
-                Youtube
-
-                {% if user|is_connected_to_platform:"youtube" %}
-                    <p>
-                        <a href="{% url 'main_app:update_saved_tracks' platform='youtube' %}">Recharger la liste</a>
-                        <a href="{% url 'platforms:disconnect' platform='youtube' %}">Déconnecter</a>
-                    </p>
-                {% else %}
-                    <p><a href="{% url 'platforms:auth_redirect' platform='youtube' %}">Se connecter à Youtube</a></p>
-                {% endif %}
-            </li>
+            {% for platform in available_platforms %}
+                <li>
+                    <strong>{{ platform.capitalize }}</strong>
+                    {% if user|is_connected_to_platform:platform %}
+                        <a href="{% url 'main_app:update_saved_tracks' platform=platform %}">Recharger la liste</a>
+                        <a href="{% url 'platforms:disconnect' platform=platform %}">Déconnecter</a>
+                    {% else %}
+                        <a href="{% url 'platforms:auth_redirect' platform=platform %}">Se connecter</a>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <p>Aucune plateforme disponible actuellement ...</p>
+            {% endfor %}
         </ul>
   <div>
     <!-- TODO : supprimer ce bouton ? -->

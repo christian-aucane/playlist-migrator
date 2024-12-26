@@ -12,25 +12,27 @@
         <li>
             <a href="{% url 'main_app:index' %}">Accueil de l'application</a>
         </li>
-    </ul>
-    <ul>
-    <!-- TODO : mettre dans un template partiel -->
         <li>
-            {% if user|is_connected_to_platform:"spotify" %}
-                <a href="{% url 'platforms:disconnect' platform='spotify' %}">Déconnecter Spotify</a>
-            {% else %}
-                <a href="{% url 'platforms:auth_redirect' platform='spotify' %}">Se connecter à Spotify</a>
-            {% endif %}
+            {% with platforms=user|get_user_platforms %}
+                <p>
+                    {% if platforms %}
+                        Vous êtes connecté à
+                        {% for platform in platforms %}
+                            {{ platform }}
+                        {% endfor %}
+                    {% else %}
+                        Vous n'êtes connecté a aucune plateforme
+                    <a href=""></a>
+                    {% endif %}
+                </p>
+
+                {% if platforms %}
+                    <a href="{% url 'platforms:disconnect' platform='all' %}" style="color:red">
+                        Déconnecter de toutes les plateformes
+                    </a>
+                {% endif %}
+            {% endwith %}
         </li>
-        {% comment %}
-        <li>
-            {% if user|is_connected_to_platform:"youtube" %}
-                <a href="{% url 'platforms:disconnect' platform='youtube' %}">Déconnecter Youtube</a>
-            {% else %}
-                <a href="{% url 'platforms:auth_redirect' platform='youtube' %}">Se connecter à Youtube</a>
-            {% endif %}
-        </li>
-        {% endcomment %}
     </ul>
 </nav>
 {% block app %}
